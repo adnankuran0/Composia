@@ -14,11 +14,6 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\Composia.h" />
-    <ClInclude Include="src\Core\DynamicArray.h" />
-    <ClInclude Include="src\Entity.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C032DAB7-ACFF-34C3-D518-236BC1446A51}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
@@ -142,6 +137,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Composia.h" />
+    <ClInclude Include="src\Core\DynamicArray.h" />
+    <ClInclude Include="src\Entity.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
