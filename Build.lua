@@ -9,8 +9,6 @@ workspace "Composia"
 
 OutputDir = "%{cfg.system}-%{cfg.architecture}/%{cfg.buildcfg}"
 
-group "Composia"
-    include "Composia/Build-Composia.lua"
-group ""
-
+include "Composia/Build-Composia.lua"
+include "Tests/Build-Tests.lua"
 include "App/Build-App.lua"
