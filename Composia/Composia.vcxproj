@@ -141,6 +141,7 @@
     <ClInclude Include="src\Composia.h" />
     <ClInclude Include="src\Core\DynamicArray.h" />
     <ClInclude Include="src\Entity.h" />
+    <ClInclude Include="src\EntityManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

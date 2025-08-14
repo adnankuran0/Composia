@@ -120,6 +120,38 @@ TEST(DynamicArrayTest, Empty)
     EXPECT_EQ(arr.Empty(), true);
 }
 
+TEST(DynamicArrayTest, Foreach)
+{
+    DynamicArray<int> arr(1);
+    arr.PushBack(1);
+    arr.PushBack(2);
+    arr.PushBack(3);
+    arr.PushBack(4);
+    arr.PushBack(5);
+    int foundValue;
+    for (auto& val : arr) {
+        if (val == 5) foundValue = 5;
+    }
+    EXPECT_EQ(foundValue, 5);
+}
+
+TEST(DynamicArrayTest, STDFind)
+{
+    DynamicArray<int> arr(1);
+    arr.PushBack(1);
+    arr.PushBack(2);
+    arr.PushBack(3);
+    arr.PushBack(4);
+    arr.PushBack(5);
+
+    auto it = std::find(arr.begin(), arr.end(), 3);
+    bool result = it != arr.end();
+    EXPECT_EQ(result, true);
+    it = std::find(arr.begin(), arr.end(), 10);
+    result = it != arr.end();
+    EXPECT_EQ(result, false);
+}
+
 // -------------------------
 // DynamicArray<std::string> Tests
 // -------------------------
@@ -153,8 +185,81 @@ TEST(DynamicArrayStringTest, ClearAllValues)
     EXPECT_EQ(arr.Size(), 0);
 }
 
+// -------------------------
+// Entity and EntityManager tests
+// -------------------------
+
+#include "EntityManager.h"
+using namespace Composia;
+
+class EntityManagerTest : public ::testing::Test {
+protected:
+    EntityManager manager;
+};
+
+TEST_F(EntityManagerTest, Create_NewEntity_ShouldBeAlive)
+{
+    Entity e = manager.Create();
+    EXPECT_TRUE(manager.IsAlive(e));
+    EXPECT_EQ(manager.Generation(e), 0);
+}
+
+TEST_F(EntityManagerTest, Create_MultipleEntities_UniqueIDs)
+{
+    Entity e1 = manager.Create();
+    Entity e2 = manager.Create();
+    EXPECT_NE(e1, e2);
+    EXPECT_TRUE(manager.IsAlive(e1));
+    EXPECT_TRUE(manager.IsAlive(e2));
+}
+
+TEST_F(EntityManagerTest, Destroy_Entity_ShouldNotBeAlive)
+{
+    Entity e = manager.Create();
+    manager.Destroy(e);
+    EXPECT_FALSE(manager.IsAlive(e));
+}
+
+TEST_F(EntityManagerTest, Destroy_AlreadyDestroyedEntity_NoCrash)
+{
+    Entity e = manager.Create();
+    manager.Destroy(e);
+    EXPECT_NO_THROW(manager.Destroy(e));
+    EXPECT_FALSE(manager.IsAlive(e));
+}
+
+TEST_F(EntityManagerTest, Create_AfterDestroy_ReusesID)
+{
+    Entity e1 = manager.Create();
+    manager.Destroy(e1);
+    Entity e2 = manager.Create();
+    EXPECT_EQ(e1, e2);
+    EXPECT_TRUE(manager.IsAlive(e2));
+}
+
+TEST_F(EntityManagerTest, Generation_ShouldIncreaseWhenReused)
+{
+    Entity e1 = manager.Create();
+    uint32_t gen1 = manager.Generation(e1);
+    manager.Destroy(e1);
+    Entity e2 = manager.Create();
+    uint32_t gen2 = manager.Generation(e2);
+    EXPECT_EQ(e1, e2);
+    EXPECT_EQ(gen2, gen1 + 1);
+}
+
+TEST_F(EntityManagerTest, IsAlive_InvalidEntity_ShouldReturnFalse)
+{
+    EXPECT_FALSE(manager.IsAlive(999));
+}
+
+TEST_F(EntityManagerTest, Generation_InvalidEntity_ShouldReturnZero)
+{
+    EXPECT_EQ(manager.Generation(999), 0);
+}
 int main(int argc, char** argv) 
 {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
+

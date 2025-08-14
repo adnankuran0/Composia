@@ -199,6 +199,12 @@ public:
 		m_GrowMultiplier = newMultiplyer;
 	}
 
+	T* begin() noexcept { return m_Data; }
+	T* end() noexcept { return m_Data + m_Size; }
+
+	const T* begin() const noexcept { return m_Data; }
+	const T* end() const noexcept { return m_Data + m_Size; }
+
 private:
 	inline void Grow() noexcept
 	{

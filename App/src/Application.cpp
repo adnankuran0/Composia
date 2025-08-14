@@ -31,5 +31,5 @@ void Application::Start()
     std::cout << "DynamicArray push_back: "
         << std::chrono::duration<double, std::milli>(end - start).count()
         << " ms\n";
-
+    
 }

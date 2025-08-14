@@ -11,5 +11,6 @@
       <Filter>Core</Filter>
     </ClInclude>
     <ClInclude Include="src\Entity.h" />
+    <ClInclude Include="src\EntityManager.h" />
   </ItemGroup>
 </Project>
