@@ -191,6 +191,7 @@ TEST(DynamicArrayStringTest, ClearAllValues)
 
 #include "EntityManager.h"
 #include <ComponentManager.h>
+#include <Registry.h>
 using namespace Composia;
 
 class EntityManagerTest : public ::testing::Test {
@@ -354,6 +355,74 @@ TEST_F(ComponentManagerTest, MultipleEntities)
     EXPECT_FALSE(compManager.Has<Position>(e1));
     EXPECT_TRUE(compManager.Has<Position>(e2));
 }
+
+// -------------------------
+// Registry tests
+// -------------------------
+
+class RegistryTest : public ::testing::Test 
+{
+protected:
+    Registry registry;
+};
+
+TEST_F(RegistryTest, AddAndGetComponent) 
+{
+    Entity e = registry.Create();
+    Position pos{ 10, 20 };
+    registry.Add(e, pos);
+
+    Position& got = registry.Get<Position>(e);
+    EXPECT_EQ(got.x, 10);
+    EXPECT_EQ(got.y, 20);
+}
+
+TEST_F(RegistryTest, EmplaceComponent) 
+{
+    Entity e = registry.Create();
+    registry.Emplace<Velocity>(e, 1.0f, 2.0f);
+
+    Velocity& vel = registry.Get<Velocity>(e);
+    EXPECT_FLOAT_EQ(vel.vx, 1.0f);
+    EXPECT_FLOAT_EQ(vel.vy, 2.0f);
+}
+
+TEST_F(RegistryTest, RemoveComponent)
+{
+    Entity e = registry.Create();
+    registry.Emplace<Position>(e, 5, 6);
+    registry.Remove<Position>(e);
+
+    EXPECT_FALSE(registry.Has<Position>(e));
+}
+
+TEST_F(RegistryTest, DestroyEntity_RemovesAllComponents) 
+{
+    Entity e = registry.Create();
+    registry.Emplace<Position>(e, 1, 2);
+    registry.Emplace<Velocity>(e, 3.0f, 4.0f);
+
+    registry.Destroy(e);
+
+    EXPECT_FALSE(registry.Has<Position>(e));
+    EXPECT_FALSE(registry.Has<Velocity>(e));
+}
+
+TEST_F(RegistryTest, MultipleEntities) 
+{
+    Entity e1 = registry.Create();
+    Entity e2 = registry.Create();
+
+    registry.Emplace<Position>(e1, 10, 10);
+    registry.Emplace<Position>(e2, 20, 20);
+
+    Position& p1 = registry.Get<Position>(e1);
+    Position& p2 = registry.Get<Position>(e2);
+
+    EXPECT_EQ(p1.x, 10);
+    EXPECT_EQ(p2.x, 20);
+}
+
 
 int main(int argc, char** argv) 
 {

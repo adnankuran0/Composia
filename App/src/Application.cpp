@@ -1,35 +1,49 @@
 #include "Application.h"
 
-#include "Entity.h"
-#include "Core/DynamicArray.h"
+#include "Composia.h"
 #include <vector>
 #include <iostream>
 #include <chrono>
 
 using namespace Composia;
 
+struct Position
+{
+    float x;
+    float y;
+};
+
+struct Velocity
+{
+    float x;
+    float y;
+};
+
 void Application::Start()
 {
-    const size_t N = 10000000;
+    Registry reg;
+    Entity ent1 = reg.Create();
+    Entity ent2 = reg.Create();
 
-    // Benchmark std::vector
-    std::vector<int> vec;
-    auto start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < N; ++i)
-        vec.push_back(i);
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "std::vector push_back: "
-        << std::chrono::duration<double, std::milli>(end - start).count()
-        << " ms\n";
+    Position pos = { 10.0f , 25.0f };
+    reg.Add<Position>(ent1, pos);
+    reg.Emplace<Velocity>(ent1,10.0f,2.0f);
 
-    // Benchmark DynamicArray
-    Composia::Core::DynamicArray<int> arr;
-    start = std::chrono::high_resolution_clock::now();
-    for (size_t i = 0; i < N; ++i)
-        arr.PushBack(i);
-    end = std::chrono::high_resolution_clock::now();
-    std::cout << "DynamicArray push_back: "
-        << std::chrono::duration<double, std::milli>(end - start).count()
-        << " ms\n";
-    
+    reg.Emplace<Position>(ent2, 42.0f, 21.0f);
+    reg.Emplace<Velocity>(ent2, 21.0f, 9.0f);
+
+    pos = reg.Get<Position>(ent1);
+    Velocity vel = reg.Get<Velocity>(ent2);
+
+
+    std::cout << "Position of ent1: " << pos.x << "," << pos.y << "\n";
+    std::cout << "Velocity of ent2: " << vel.x << "," << vel.y << "\n";
+
+    std::cout << "Has ent1 Position component? : " << reg.Has<Position>(ent1) << "\n";
+    reg.Remove<Position>(ent1);
+    std::cout << "Has ent1 Position component after removing it? : " << reg.Has<Position>(ent1) << "\n";
+
+    reg.Destroy(ent2);
+    std::cout << "Has ent2 Velocity component after destroyed? : " << reg.Has<Velocity>(ent2) << "\n";
+
 }
