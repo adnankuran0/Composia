@@ -1,7 +1,7 @@
 # Composia ECS
 
 Composia is a small, fast, header-only Entity Component System (ECS) library.
-It can be used as a single header via Composia.h or with separate modular headers. 
+It can be used as a single header via Composia.h. 
 
 ## Code Example
 ```cpp
