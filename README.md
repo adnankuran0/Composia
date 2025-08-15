@@ -8,23 +8,23 @@ It can be used as a single header via Composia.h or with separate modular header
 #include "Composia.h"
 #include <iostream>
 
-using namespace Composia::Core;
+using namespace Composia;
 
 struct Position { float x, y; };
 struct Velocity { float x, y; };
 
 int main() {
-    Registry reg;
-    Entity e1 = reg.Create();
-    Entity e2 = reg.Create();
+    Registry registy;
+    Entity entity1 = registy.Create();
+    Entity entity2 = registy.Create();
 
-    reg.Emplace<Position>(e1, 10.0f, 25.0f);
-    reg.Emplace<Velocity>(e1, 5.0f, 2.0f);
+    registy.Emplace<Position>(entity1, 10.0f, 25.0f);
+    registy.Emplace<Velocity>(entity1, 5.0f, 2.0f);
 
-    reg.Emplace<Position>(e2, 42.0f, 21.0f);
-    reg.Emplace<Velocity>(e2, 21.0f, 9.0f);
+    registy.Emplace<Position>(entity2, 42.0f, 21.0f);
+    registy.Emplace<Velocity>(entity2, 21.0f, 9.0f);
 
-    reg.View<Position, Velocity>().each([](Position& pos, Velocity& vel) {
+    registy.View<Position, Velocity>().each([](Position& pos, Velocity& vel) {
         std::cout << "Position(" << pos.x << ", " << pos.y
                   << "), Velocity(" << vel.x << ", " << vel.y << ")\n";
     });
