@@ -3,8 +3,8 @@
 
 #include <new>       // operator new / delete
 #include <utility>   // std::move, std::forward
-#include <cassert>
-#include <type_traits>
+#include <cassert> // assert
+#include <type_traits> // std::is_trivially_destructible_v
 
 namespace Composia::Core {
 

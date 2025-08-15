@@ -1,12 +1,11 @@
 #ifndef COMPOSIA_ENTITY_MANAGER_H
 #define COMPOSIA_ENTITY_MANAGER_H
+
 #include "Entity.h"
+#include "Core/DynamicArray.h"
+using Composia::Core::DynamicArray;
 
 namespace Composia {
-
-#include "Core/DynamicArray.h"
-
-using Composia::Core::DynamicArray;
 
 class EntityManager
 {

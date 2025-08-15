@@ -138,8 +138,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\ComponentPool.h" />
     <ClInclude Include="src\Composia.h" />
     <ClInclude Include="src\Core\DynamicArray.h" />
+    <ClInclude Include="src\Core\SparseSet.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\EntityManager.h" />
   </ItemGroup>

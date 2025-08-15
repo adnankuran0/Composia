@@ -12,5 +12,7 @@
     </ClInclude>
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\EntityManager.h" />
+    <ClInclude Include="src\ComponentPool.h" />
+    <ClInclude Include="src\Core\SparseSet.h" />
   </ItemGroup>
 </Project>
