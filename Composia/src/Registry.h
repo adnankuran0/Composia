@@ -3,6 +3,7 @@
 
 #include "EntityManager.h"
 #include "ComponentManager.h"
+#include "View.h"
 
 namespace Composia {
 
@@ -50,6 +51,11 @@ public:
 		return *m_ComponentManager.Get<T>(e);
 	}
 
+	template<typename... Components>
+	inline Composia::View<Components...> View() noexcept
+	{
+		return Composia::View<Components...>(this->m_ComponentManager);
+	}
 
 private:
 	EntityManager m_EntityManager;

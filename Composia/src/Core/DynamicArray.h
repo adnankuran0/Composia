@@ -12,8 +12,8 @@ template<typename T>
 class DynamicArray
 {
 public:
-	DynamicArray(size_t initialCapacity = 1) 
-		: m_Capacity(initialCapacity), m_Size(0), m_GrowMultiplier(3), m_Data(nullptr)
+	DynamicArray(size_t initialCapacity = 4) 
+		: m_Capacity(initialCapacity), m_Size(0), m_GrowMultiplier(2), m_Data(nullptr)
 	{
 		m_Data = static_cast<T*>(operator new(m_Capacity * sizeof(T)));
 	}
@@ -29,7 +29,14 @@ public:
 	{
 		if (m_Size >= m_Capacity) Grow();
 
-		new (&m_Data[m_Size]) T(value);
+		if constexpr (std::is_trivially_copyable_v<T>)
+		{
+			m_Data[m_Size] = value; 
+		}
+		else
+		{
+			new (&m_Data[m_Size]) T(value);
+		}
 		m_Size++;
 	}
 
@@ -37,7 +44,15 @@ public:
 	{
 		if (m_Size >= m_Capacity) Grow();
 
-		new (&m_Data[m_Size]) T(std::move(value));
+
+		if constexpr (std::is_trivially_copyable_v<T>)
+		{
+			m_Data[m_Size] = std::move(value);
+		}
+		else
+		{
+			new (&m_Data[m_Size]) T(std::move(value));
+		}
 		m_Size++;
 	}
 
@@ -65,7 +80,7 @@ public:
 		return m_Data[index];
 	}
 
-	inline const T& At(size_t index) const
+	inline const T& At(size_t index) const noexcept
 	{
 		assert(index < m_Size && "Index out of bounds");
 		return m_Data[index];
@@ -86,74 +101,83 @@ public:
 		return m_Data;
 	}
 
-	inline void Reserve(size_t newCapacity)
+	void Reserve(size_t newCapacity)
 	{
+		if (newCapacity <= m_Capacity) return;
 		T* newPtr = static_cast<T*>(operator new(newCapacity * sizeof(T)));
-		if (std::is_trivially_copyable_v<T>)
+
+		if constexpr (std::is_trivially_copyable_v<T>)
 		{
 			memcpy(newPtr, m_Data, m_Size * sizeof(T));
 		}
 		else
 		{
-			for (size_t i = 0; i < m_Size; i++)
+			for (size_t i = 0; i < m_Size; ++i)
 			{
 				new (&newPtr[i]) T(std::move(m_Data[i]));
 				if constexpr (!std::is_trivially_destructible_v<T>)
-				{
 					m_Data[i].~T();
-				}
 			}
 		}
-		
+
 		operator delete(m_Data);
 		m_Data = newPtr;
 		m_Capacity = newCapacity;
 	}
 
-	inline void Resize(size_t newSize) noexcept
+	void Resize(size_t newSize)
 	{
 		if (newSize > m_Capacity) Reserve(newSize);
 
 		if (newSize > m_Size)
 		{
-			for (size_t i = m_Size; i < newSize; i++)
+			if constexpr (std::is_trivially_default_constructible_v<T>)
 			{
-				new (&m_Data[i]) T();
+				for (size_t i = m_Size; i < newSize; ++i)
+					m_Data[i] = T{};
+			}
+			else
+			{
+				for (size_t i = m_Size; i < newSize; ++i)
+					new (&m_Data[i]) T();
 			}
 		}
 		else
 		{
-			for (size_t i = newSize; i < m_Size; i++)
-			{
+			for (size_t i = newSize; i < m_Size; ++i)
 				if constexpr (!std::is_trivially_destructible_v<T>)
-				{
 					m_Data[i].~T();
-				}
-			}
 		}
 
 		m_Size = newSize;
 	}
 
-	inline void Resize(size_t newSize, const T& value) 
+	void Resize(size_t newSize, const T& value)
 	{
 		if (newSize > m_Capacity) Reserve(newSize);
 
-		if (newSize > m_Size) 
+		if (newSize > m_Size)
 		{
-			for (size_t i = m_Size; i < newSize; ++i)
-				new (&m_Data[i]) T(value); 
-		}
-		else 
-		{
-			for (size_t i = newSize; i < m_Size; ++i)
+			if constexpr (std::is_trivially_copyable_v<T>)
 			{
-				if constexpr (!std::is_trivially_destructible_v<T>)
-				{
-					m_Data[i].~T();
-				}
+				for (size_t i = m_Size; i < newSize; ++i)
+					m_Data[i] = value;
+			}
+			else
+			{
+				for (size_t i = m_Size; i < newSize; ++i)
+					new (&m_Data[i]) T(value);
 			}
 		}
+		else
+		{
+			if constexpr (!std::is_trivially_destructible_v<T>)
+			{
+				for (size_t i = newSize; i < m_Size; ++i)
+					m_Data[i].~T();
+			}
+		}
+
 		m_Size = newSize;
 	}
 

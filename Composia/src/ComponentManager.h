@@ -18,7 +18,7 @@ public:
 	}
 
 	template<typename T, typename... Args>
-	void Emplace(Entity e, Args&&... args) noexcept
+	inline void Emplace(Entity e, Args&&... args) noexcept
 	{
 		auto* wrapper = GetOrCreatePool<T>();
 		wrapper->pool.Emplace(e, std::forward<Args>(args)...);
@@ -85,7 +85,7 @@ private:
 	template<typename T>
 	ComponentPoolWrapper<T>* GetOrCreatePool()
 	{
-		auto& idx = typeid(T);
+		static auto& idx = typeid(T);
 
 		auto existing = m_Pools.Get(idx);
 		if (existing)

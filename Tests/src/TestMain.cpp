@@ -423,6 +423,47 @@ TEST_F(RegistryTest, MultipleEntities)
     EXPECT_EQ(p2.x, 20);
 }
 
+class ViewTest : public ::testing::Test
+{
+protected:
+    Composia::Registry registry;
+};
+
+TEST_F(ViewTest, IterateEntitiesWithMultipleComponents)
+{
+    // Create entities
+    auto e1 = registry.Create();
+    auto e2 = registry.Create();
+    auto e3 = registry.Create();
+
+    registry.Add(e1, Position{ 1, 2 });
+    registry.Add(e1, Velocity{ 10, 20 });
+
+    registry.Add(e2, Position{ 3, 4 });
+    registry.Add(e2, Velocity{ 30, 40 });
+
+    registry.Add(e3, Position{ 5, 6 }); // e3 has no Velocity
+
+    // Iterate view
+    int count = 0;
+    registry.View<Position, Velocity>().each([&](Position& p, Velocity& v) {
+        if (count == 0) {
+            EXPECT_EQ(p.x, 1);
+            EXPECT_EQ(p.y, 2);
+            EXPECT_EQ(v.vx, 10);
+            EXPECT_EQ(v.vy, 20);
+        }
+        else if (count == 1) {
+            EXPECT_EQ(p.x, 3);
+            EXPECT_EQ(p.y, 4);
+            EXPECT_EQ(v.vx, 30);
+            EXPECT_EQ(v.vy, 40);
+        }
+        ++count;
+        });
+
+    EXPECT_EQ(count, 2); // Only e1 and e2 should be in the view
+}
 
 int main(int argc, char** argv) 
 {

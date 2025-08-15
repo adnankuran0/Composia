@@ -23,8 +23,8 @@ public:
 	inline bool Has(Key k) const noexcept
 	{
 		return k < m_Sparse.Size() &&
-			m_Sparse.At(k) != INVALID_INDEX &&
-			m_Sparse.At(k) < m_Dense.Size();
+			m_Sparse[k] != INVALID_INDEX &&
+			m_Sparse[k] < m_Dense.Size();
 	}
 
 	inline void Add(Key k, const T& value) noexcept
@@ -32,11 +32,11 @@ public:
 		EnsureSparseSize(k);
 		if (Has(k))
 		{
-			m_Dense.At(m_Sparse.At(k)) = value;
+			m_Dense[m_Sparse[k]] = value;
 			return;
 		}
 
-		m_Sparse.At(k) = static_cast<uint32_t>(m_Dense.Size());
+		m_Sparse[k] = static_cast<uint32_t>(m_Dense.Size());
 		m_Dense.PushBack(value);
 		m_Packed.PushBack(k);
 	}
@@ -47,7 +47,7 @@ public:
 		EnsureSparseSize(k);
 		if (Has(k))
 		{
-			m_Dense.At(m_Sparse.At(k)) = T(std::forward<Args>(args)...);
+			m_Dense[m_Sparse[k]] = T(std::forward<Args>(args)...);
 			return;
 		}
 
@@ -60,26 +60,26 @@ public:
 	{
 		if (!Has(k)) return;
 
-		uint32_t denseRemovedIndex = m_Sparse.At(k);
+		uint32_t denseRemovedIndex = m_Sparse[k];
 		uint32_t denseLastIndex = static_cast<uint32_t>(m_Dense.Size() - 1);
 
 		// move last element into removed slot
-		m_Dense.At(denseRemovedIndex) = std::move(m_Dense.At(denseLastIndex));
-		Key movedKey = m_Packed.At(denseLastIndex);
-		m_Packed.At(denseRemovedIndex) = movedKey;
-		m_Sparse.At(movedKey) = denseRemovedIndex;
+		m_Dense[denseRemovedIndex] = std::move(m_Dense[denseLastIndex]);
+		Key movedKey = m_Packed[denseLastIndex];
+		m_Packed[denseRemovedIndex] = movedKey;
+		m_Sparse[movedKey] = denseRemovedIndex;
 
 		// pop back
 		m_Dense.PopBack();
 		m_Packed.PopBack();
-		m_Sparse.At(k) = INVALID_INDEX;
+		m_Sparse[k] = INVALID_INDEX;
 
 	}
 
 	[[nodiscard]] inline T* Get(Key k) noexcept
 	{
 		if (!Has(k)) return nullptr;
-		return &m_Dense.At(m_Sparse.At(k));
+		return &m_Dense[m_Sparse[k]];
 	}
 
 	[[nodiscard]] const DynamicArray<T>& RawDense() const noexcept
@@ -105,10 +105,9 @@ private:
 		if (k >= m_Sparse.Size())
 		{
 			size_t newCapacity = m_Sparse.Size() == 0 ? 64 : m_Sparse.Size();
-			while (k <= newCapacity)
-			{
+			while (k >= newCapacity)
 				newCapacity *= 2;
-			}
+
 			m_Sparse.Resize(newCapacity, INVALID_INDEX);
 		}
 	}
