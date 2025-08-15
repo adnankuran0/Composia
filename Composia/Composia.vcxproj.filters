@@ -14,5 +14,7 @@
     <ClInclude Include="src\EntityManager.h" />
     <ClInclude Include="src\ComponentPool.h" />
     <ClInclude Include="src\Core\SparseSet.h" />
+    <ClInclude Include="src\Core\PoolMap.h" />
+    <ClInclude Include="src\ComponentManager.h" />
   </ItemGroup>
 </Project>

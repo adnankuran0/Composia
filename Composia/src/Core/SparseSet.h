@@ -41,6 +41,21 @@ public:
 		m_Packed.PushBack(k);
 	}
 
+	template<typename... Args>
+	inline void Emplace(Key k, Args&&... args)
+	{
+		EnsureSparseSize(k);
+		if (Has(k))
+		{
+			m_Dense.At(m_Sparse.At(k)) = T(std::forward<Args>(args)...);
+			return;
+		}
+
+		m_Sparse[k] = static_cast<uint32_t>(m_Dense.Size());
+		m_Dense.EmplaceBack(std::forward<Args>(args)...);
+		m_Packed.PushBack(k);
+	}
+
 	inline void Remove(Key k)
 	{
 		if (!Has(k)) return;
@@ -50,14 +65,14 @@ public:
 
 		// move last element into removed slot
 		m_Dense.At(denseRemovedIndex) = std::move(m_Dense.At(denseLastIndex));
-		Key movedKey = m_Dense.At(denseLastIndex);
+		Key movedKey = m_Packed.At(denseLastIndex);
 		m_Packed.At(denseRemovedIndex) = movedKey;
 		m_Sparse.At(movedKey) = denseRemovedIndex;
 
 		// pop back
 		m_Dense.PopBack();
 		m_Packed.PopBack();
-		m_Sparse.At(e) = INVALID_INDEX;
+		m_Sparse.At(k) = INVALID_INDEX;
 
 	}
 

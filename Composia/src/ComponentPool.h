@@ -14,6 +14,7 @@ namespace Composia {
 template<typename T>
 class ComponentPool
 {
+public:
 	ComponentPool() = default;
 
 	inline bool Has(Entity e) const noexcept
@@ -23,7 +24,13 @@ class ComponentPool
 
 	inline void Add(Entity e, const T& value) noexcept
 	{
-		m_Set.Add(e);
+		m_Set.Add(e,value);
+	}
+
+	template<typename... Args>
+	void Emplace(Entity e, Args&&... args) noexcept
+	{
+		m_Set.Emplace(e, std::forward<Args>(args)...);
 	}
 
 	inline void Remove(Entity e)
@@ -61,8 +68,8 @@ struct IComponentPool
 {
 	virtual ~IComponentPool() = default;
 	virtual void Remove(Entity e) noexcept = 0;
-	virtual bool Has(Entity e) noexcept = 0;
-	virtual size_t Size() noexcept = 0;
+	virtual bool Has(Entity e) const noexcept = 0;
+	virtual size_t Size() const noexcept = 0;
 };
 
 template<typename T>
@@ -74,12 +81,12 @@ struct ComponentPoolWrapper : IComponentPool
 		pool.Remove(e);
 	}
 
-	bool Has(Entity e) noexcept override
+	bool Has(Entity e) const noexcept override
 	{
 		return pool.Has(e);
 	}
 
-	size_t Size() noexcept override
+	size_t Size() const noexcept override
 	{
 		return pool.Size();
 	}

@@ -41,6 +41,15 @@ public:
 		m_Size++;
 	}
 
+	template<typename... Args>
+	inline T& EmplaceBack(Args&&... args)
+	{
+		if (m_Size >= m_Capacity) Grow();
+
+		new (&m_Data[m_Size]) T(std::forward<Args>(args)...);
+		return m_Data[m_Size++];
+	}
+
 	inline void PopBack() noexcept
 	{
 		if (m_Size > 0)

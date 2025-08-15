@@ -190,6 +190,7 @@ TEST(DynamicArrayStringTest, ClearAllValues)
 // -------------------------
 
 #include "EntityManager.h"
+#include <ComponentManager.h>
 using namespace Composia;
 
 class EntityManagerTest : public ::testing::Test {
@@ -257,6 +258,103 @@ TEST_F(EntityManagerTest, Generation_InvalidEntity_ShouldReturnZero)
 {
     EXPECT_EQ(manager.Generation(999), 0);
 }
+
+// -------------------------
+// ComponentManager basic tests
+// -------------------------
+
+struct Position { int x, y; };
+struct Velocity { float vx, vy; };
+
+class ComponentManagerTest : public ::testing::Test {
+protected:
+    EntityManager entityManager;
+    ComponentManager compManager;
+};
+
+TEST_F(ComponentManagerTest, AddAndGetComponent)
+{
+    Entity e = entityManager.Create();
+    Position pos{ 10, 20 };
+    compManager.Add(e, pos);
+
+    auto* retrieved = compManager.Get<Position>(e);
+    ASSERT_NE(retrieved, nullptr);
+    EXPECT_EQ(retrieved->x, 10);
+    EXPECT_EQ(retrieved->y, 20);
+}
+
+TEST_F(ComponentManagerTest, EmplaceComponent)
+{
+    Entity e = entityManager.Create();
+    compManager.Emplace<Velocity>(e, 1.5f, 2.5f);
+
+    auto* v = compManager.Get<Velocity>(e);
+    ASSERT_NE(v, nullptr);
+    EXPECT_FLOAT_EQ(v->vx, 1.5f);
+    EXPECT_FLOAT_EQ(v->vy, 2.5f);
+}
+
+TEST_F(ComponentManagerTest, RemoveComponent)
+{
+    Entity e = entityManager.Create();
+    compManager.Add(e, Position{ 5, 6 });
+    EXPECT_TRUE(compManager.Has<Position>(e));
+
+    compManager.Remove<Position>(e);
+    EXPECT_FALSE(compManager.Has<Position>(e));
+    EXPECT_EQ(compManager.Get<Position>(e), nullptr);
+}
+
+TEST_F(ComponentManagerTest, HasComponent)
+{
+    Entity e = entityManager.Create();
+    EXPECT_FALSE(compManager.Has<Velocity>(e));
+
+    compManager.Add(e, Velocity{ 3.f, 4.f });
+    EXPECT_TRUE(compManager.Has<Velocity>(e));
+}
+
+TEST_F(ComponentManagerTest, PoolAccess)
+{
+    Entity e = entityManager.Create();
+    compManager.Add(e, Position{ 7, 8 });
+
+    auto* pool = compManager.Pool<Position>();
+    ASSERT_NE(pool, nullptr);
+    EXPECT_TRUE(pool->Has(e));
+}
+
+TEST_F(ComponentManagerTest, RemoveAllForEntity)
+{
+    Entity e = entityManager.Create();
+    compManager.Add(e, Position{ 1,2 });
+    compManager.Add(e, Velocity{ 3.f,4.f });
+
+    compManager.RemoveAllForEntity(e);
+
+    EXPECT_FALSE(compManager.Has<Position>(e));
+    EXPECT_FALSE(compManager.Has<Velocity>(e));
+    EXPECT_EQ(compManager.Get<Position>(e), nullptr);
+    EXPECT_EQ(compManager.Get<Velocity>(e), nullptr);
+}
+
+TEST_F(ComponentManagerTest, MultipleEntities)
+{
+    Entity e1 = entityManager.Create();
+    Entity e2 = entityManager.Create();
+
+    compManager.Add(e1, Position{ 1,1 });
+    compManager.Add(e2, Position{ 2,2 });
+
+    EXPECT_TRUE(compManager.Has<Position>(e1));
+    EXPECT_TRUE(compManager.Has<Position>(e2));
+
+    compManager.Remove<Position>(e1);
+    EXPECT_FALSE(compManager.Has<Position>(e1));
+    EXPECT_TRUE(compManager.Has<Position>(e2));
+}
+
 int main(int argc, char** argv) 
 {
     ::testing::InitGoogleTest(&argc, argv);
