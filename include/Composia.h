@@ -226,7 +226,7 @@ namespace Composia::Core {
 			return m_GrowMultiplier;
 		}
 
-		inline void GrowMultiplier(uint8_t newMultiplyer) noexcept
+		inline void GrowMultiplier(uint8_t newMultipier) noexcept
 		{
 			if (newMultiplyer <= 1) return;
 			m_GrowMultiplier = newMultiplyer;
