@@ -1,6 +1,9 @@
 #ifndef COMPOSIA_DYNAMIC_ARRAY_H
 #define COMPOSIA_DYNAMIC_ARRAY_H
 
+
+#include <cstdint>
+#include <cstddef>
 #include <new>       // operator new / delete
 #include <utility>   // std::move, std::forward
 #include <cassert> // assert

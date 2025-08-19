@@ -1,6 +1,9 @@
 #ifndef COMPOSIA_H
 #define COMPOSIA_H
 
+#include <cstring>
+#include <cstdint>
+#include <cstddef>
 #include <new>       // operator new / delete
 #include <utility>   // std::move, std::forward
 #include <cassert> // assert

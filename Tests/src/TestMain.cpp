@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 #include "Core/DynamicArray.h"
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 
 using namespace Composia::Core;
 

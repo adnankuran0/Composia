@@ -1,5 +1,5 @@
 #ifndef COMPOSIA_COMPONENT_POOL_H
-#define COMPOISA_COMPONENT_POOL_H
+#define COMPOSIA_COMPONENT_POOL_H
 
 #include <limits> // std::numeric_limits
 

@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <chrono>
+#include <cstdint>
+#include <cstddef>
 
 using namespace Composia;
 
